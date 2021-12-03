@@ -43,3 +43,6 @@ export interface WatcherOptions {
     prefix?:string,
     storage?:"local" | "session"
 }
+export function createWatcher(options?: WatcherOptions): Watcher;
+export function useLSWatcher():Watcher 
+export function useSSWatcher():Watcher
