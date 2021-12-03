@@ -13,24 +13,24 @@ const storageInstantce={
 declare type  watcherType = "local"|"session"
 
 export function createWatcher(options?: WatcherOptions): Watcher {
-    const prefix = options?.prefix ?? ""
+    const prefix = options?.prefix
     const storage = options?.storage ?? "local"
 
 return watcherFactory(prefix,storage)
    
 }
 
-function watcherFactory(prefix:string, storage:watcherType) : Watcher{
+function watcherFactory(prefix:string|undefined, storage:watcherType) : Watcher{
     return createStorageWatcher(prefix,storage)
    
 }
 
-export function createStorageWatcher(p:string,s:watcherType) {
+export function createStorageWatcher(p:string|undefined,s:watcherType) {
     const storage = storageInstantce[s]
     const storageRef = storageRefFactory(storage)
     const keys = Object.keys(storage)
     let obj ={} as Record<string,Ref<any>>
-    const prefix = p+lsSymbol //combined prefix
+    const prefix = p||lsSymbol //combined prefix
     for (const k of keys) {
         if (k.startsWith(prefix)){
             const originKeyName = k.replace(prefix, "")
