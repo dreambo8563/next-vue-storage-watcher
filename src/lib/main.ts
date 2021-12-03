@@ -1,8 +1,8 @@
-import { type } from "os";
 import { App, reactive, readonly, Ref, toRef } from "vue";
 import { Watcher, WatcherOptions } from "../types";
 import { parserStorageObj, storageRefFactory } from "./utils";
-
+export {useLSWatcher} from "./local"
+export {useSSWatcher} from "./session"
 
 const lsSymbol = "_LS_Watcher_"
 const UpdateSymbol ="$$_UKEY_$$"
