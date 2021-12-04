@@ -43,7 +43,6 @@ export function storageRefFactory(s:Storage){
                 }else{
                     try {
                         const obj = JSON.parse(newValue as string)
-    
                             value = {
                                 value:obj?.value??null,
                                 expire:calcExpireTime(obj.expire)
@@ -51,7 +50,7 @@ export function storageRefFactory(s:Storage){
                             obj&&  s.setItem(obj.prefix+obj.key,stringifyValue(obj.value,obj.expire))
                         
                     } catch (error) {
-                        console.error(error);
+                        console.error("vue watcher set value Error: ",error);
                         value = newValue
                     }
                 }

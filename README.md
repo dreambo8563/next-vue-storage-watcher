@@ -11,23 +11,19 @@
 the real reactive watcher for localStorge.
 I search a few days for a lib to watch the ls, but failed.
 
-you can use this tiny storage wrapper which works well with vue.js.
+you can use this tiny storage wrapper which works well with Vue 3.
 
 - reactive
 - type supported
 - small size
 
-TODO:
-
-- [x] make expire params work
-- [x] provide info method
 
 ## Install
 
 > npm install next-vue-storage-watcher --save
 
 
-## Sample
+## Sample Code
 
 ```ts
 import { createApp } from 'vue'
@@ -55,8 +51,8 @@ createApp(App)
 
 ## Options
 
-- prefix => default is "_Storage_Watcher_"
-- storage => default is "local" which means window.localStorage will be used as Storage Object. Another alternative is "session"
+- prefix => default is `_Storage_Watcher_`
+- storage => default is `local` which means window.localStorage will be used as Storage Object. Another alternative is `session`
 
 ## Methods
 
@@ -95,7 +91,7 @@ ls.setItem("token","jwt")
 
 the value will be saved in storage with the **prefix** + key
 
-> you also can give the key an expire duration with the unit of (**ms**) `(Not Completed!!)`
+> you also can give the key an expire duration with the unit of `(ms)` 
 
 ```ts 
 ls.setItem("token","jwt",3000)
@@ -105,11 +101,13 @@ the key will be expried in 3s, you will get null after that.
 
 ### info
 
-info will return `{value:"",expire:null} `
+info will return `{value:"xx",expire:1638634163710}`
 
-the value prop is `reactive`, the expire is `**NOT** reactive`, just the snapshot of that second
+the value of expire is the timestamp when the key will be expired, it is calculated internally.
 
-expire will be **null** if one of the following scenarios happen:
+the value prop is `reactive`, expire is `**NOT** reactive`, just the snapshot of that second
+
+expire will be `null` if one of the following scenarios happen:
 
 - the key is non-exist
 - the key is already expired
@@ -128,7 +126,7 @@ ls.getItem('token', 'default');
 
 get the value with a default return value if it's not existed
 
-> the returned value is Ref<any>, you just use it as other Ref values in Vue 3.
+> the returned value is Ref<any>, you just use it as other Ref values in Vue 3. Automaticly unwrap in template, xx.value used in script
 
 
 ### removeItem
@@ -137,7 +135,7 @@ get the value with a default return value if it's not existed
 ls.removeItem('token');
 ```
 
-remove will delete the key in storage and emit with **null** value
+remove will delete the key in storage and emit with `null` value
 
 ### clear
 
@@ -145,16 +143,17 @@ remove will delete the key in storage and emit with **null** value
 ls.clear();
 ```
 
-delete all the keys with your **prefix**. and all the value will be**null** 
+delete all the keys with your `prefix`. and all the value will be `null` 
 
 
 ### FAQ
 
-- pls **NOT** to set value as following, the correct way is to use setItem
+- pls `**NOT**` to set value as following, the correct way is to use setItem
 ```ts
 const ls = useLSWatcher()
 
 let msg = ls.getItem("msg")
+// wrong usage
 msg.value = "new msg" // !!!you will receive a warning
 ```
 

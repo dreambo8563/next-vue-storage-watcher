@@ -1,8 +1,8 @@
-import { App, reactive, readonly, Ref, toRef } from "vue";
+import { App, reactive, readonly, Ref, toRef, watchEffect } from "vue";
 import { Watcher, WatcherOptions } from "../types";
 import { localSymbol } from "./local";
 import { sessionSymbol } from "./session";
-import { parserStorageObj, storageRefFactory } from "./utils";
+import { calcExpireTime, parserStorageObj, storageRefFactory } from "./utils";
 export {useLSWatcher} from "./local"
 export {useSSWatcher} from "./session"
 
@@ -39,7 +39,33 @@ export function createStorageWatcher(p:string|undefined,s:watcherType) {
 
     const prefix = p||defaultPrefix //combined prefix
     const storageRef = storageRefFactory(storage);
-    const reactiveStorage = initReactiveObject(prefix,storage,storageRef);
+    const [reactiveStorage,reactiveExpire] = initReactiveObject(prefix,storage,storageRef);
+
+    let timerHanlder:number | undefined = undefined
+
+    watchEffect(()=>{
+        const min = Math.min(...Object.values(reactiveExpire))
+
+        // any changes happen, just stop the timer firstly
+         window.clearInterval(timerHanlder)
+        if(min==Infinity){
+            // no expire values, stop the time and clear handler
+            timerHanlder = undefined
+            
+        }else{
+            // found expire value
+            const interval = min-(new Date()).getTime() 
+            timerHanlder = window.setTimeout(()=>{
+                for (const key in reactiveExpire) {
+                    if(reactiveExpire[key]===min){
+                        innerRemoveMethod(storage,key,prefix,reactiveStorage)
+                        delete reactiveExpire[key]
+                    }
+                }
+
+            },Math.max(0,interval))
+        }
+    })
 
     const watcher:Watcher = {
         install(app:App){
@@ -58,6 +84,11 @@ export function createStorageWatcher(p:string|undefined,s:watcherType) {
                         })
                     },
                 })              
+            }
+            if(expire==null){
+                delete reactiveExpire[key]
+            }else{
+                reactiveExpire[key] = calcExpireTime(expire)
             }
             // trigger the value change
             reactiveStorage[key].content.value.value=JSON.stringify({
@@ -102,15 +133,9 @@ export function createStorageWatcher(p:string|undefined,s:watcherType) {
         return readonly(toRef(reactiveStorage[key].content,"value"))
        },
         
-        removeItem(key:string):void{
-            // trigger the change 
-            if (reactiveStorage[key]?.content?.value?.value){
-                reactiveStorage[key].content.value.value=null
-            }
-       
-            delete reactiveStorage?.[key]
-            storage.removeItem(prefix+key)
-        },
+       removeItem(key:string):void {
+        innerRemoveMethod(storage,key,prefix,reactiveStorage)
+       },
         
         clear():void{
             for (const key in reactiveStorage) {
@@ -121,21 +146,35 @@ export function createStorageWatcher(p:string|undefined,s:watcherType) {
 
     return watcher
 }
+function innerRemoveMethod(storage:Storage,key:string,prefix:string, reactiveStorage:any) {
+    // trigger the change 
+    if (reactiveStorage[key]?.content?.value?.value){
+        reactiveStorage[key].content.value.value=null
+    }
+
+    delete reactiveStorage?.[key]
+    storage.removeItem(prefix+key)
+}
 
 function initReactiveObject(prefix:string,storage:Storage,storageRef:(value:any)=>Ref<unknown>) {
     const keys = Object.keys(storage)
     let obj ={} as Record<string,Ref<any>>
+    let expireObj = {} as Record<string,number>
 
     for (const k of keys) {
         if (k.startsWith(prefix)){
             const originKeyName = k.replace(prefix, "")
+            const parsed = parserStorageObj(k,storage)
+            if (parsed.expire !=null){
+                expireObj[originKeyName] = parseInt(parsed.expire)
+            }
             // keys managed by watcher
             obj[originKeyName]=storageRef({
                 content:{
-                    value:storageRef(parserStorageObj(k,storage))
+                    value:storageRef(parsed)
                 },
             })
         }
     }
-    return reactive(obj) 
+    return [reactive(obj) ,reactive(expireObj)]
 }
