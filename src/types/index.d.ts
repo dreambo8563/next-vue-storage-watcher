@@ -24,6 +24,14 @@ export interface Watcher{
      * @param {*} [expire=null] unit: ms
      */
     setItem(key:string,value:any,expire?:number):void
+    /**
+     *
+     *
+     * @param {string} key
+     * @returns {({value:any,expire:number|null})}
+     * @memberof Watcher
+     */
+     info(key:string):{value:any,expire:number|null}
     
     /**
      *

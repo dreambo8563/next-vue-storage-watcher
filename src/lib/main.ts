@@ -86,6 +86,21 @@ export function createStorageWatcher(p:string|undefined,s:watcherType) {
         // we just support setItem to update value
          return readonly(toRef(reactiveStorage[key].content?.value,"value"))
         },
+        info(key:string){
+            if (reactiveStorage[key]==undefined){
+                // the key is not existed
+               reactiveStorage[key] = storageRef({
+                   content:{
+                       value:storageRef({
+                           value:null,
+                           expire:null
+                       })
+                   }
+               })
+           
+           }
+        return readonly(toRef(reactiveStorage[key].content,"value"))
+       },
         
         removeItem(key:string):void{
             // trigger the change 

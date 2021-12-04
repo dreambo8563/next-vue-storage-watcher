@@ -3,7 +3,7 @@
 ![npm type definitions](https://img.shields.io/npm/types/next-vue-storage-watcher.svg?style=flat)
 ![npm](https://img.shields.io/npm/dt/next-vue-storage-watcher.svg?style=flat)
 
-# nextvue-storage-watcher
+# Next-vue-storage-watcher
 
 ![](https://raw.githubusercontent.com/dreambo8563/static-assets/master/watcher1.png)
 
@@ -22,11 +22,12 @@ TODO:
 - [x] make expire params work
 - [x] provide info method
 
-### Install
+## Install
 
 > npm install next-vue-storage-watcher --save
 
-### Sample
+
+## Sample
 
 ```ts
 import { createApp } from 'vue'
@@ -52,22 +53,23 @@ createApp(App)
 - localStorage
 - sessionStorage
 
-### Options
+## Options
 
 - prefix => default is "_Storage_Watcher_"
 - storage => default is "local" which means window.localStorage will be used as Storage Object. Another alternative is "session"
 
-### Methods
+## Methods
 
-#### Usage in setup 
+### Usage in setup 
 ```ts
 import { useLSWatcher } from "next-vue-storage-watcher";
 import { useSSWatcher } from "next-vue-storage-watcher";
-  const ls = useLSWatcher()
-  const ss = useSSWatcher()
+
+const ls = useLSWatcher()
+const ss = useSSWatcher()
 ```
 
-#### Usage outside setup
+### Usage outside setup
 
 - main.ts
 ```ts
@@ -78,13 +80,14 @@ export const lsWatcher = createWatcher({
 
 - user.ts
 ```ts
-import { watcher as ls } from "../main";
+import { lsWatcher as ls } from "../main";
+
 const msg = ls.getItem("msg");
 ```
 
 > I will list basic api just with ls.
 
-#### set
+### setItem
 
 ```ts
 ls.setItem("token","jwt")
@@ -92,19 +95,21 @@ ls.setItem("token","jwt")
 
 the value will be saved in storage with the **prefix** + key
 
-> you also can give the key an expire duration with the unit of ms  **(Not Completed!!)**
+> you also can give the key an expire duration with the unit of (**ms**) `(Not Completed!!)`
 
 ```ts 
-ls.setItem("token","jwt",100)
+ls.setItem("token","jwt",3000)
 ```
 
 the key will be expried in 3s, you will get null after that.
 
-#### info **(Not Completed!!)**
+### info
 
-info will return {value:"",expire:null} 
-the reture Object is reactive
-expire will be **null**if one of the following scenarios happen:
+info will return `{value:"",expire:null} `
+
+the value prop is `reactive`, the expire is `**NOT** reactive`, just the snapshot of that second
+
+expire will be **null** if one of the following scenarios happen:
 
 - the key is non-exist
 - the key is already expired
@@ -114,7 +119,7 @@ expire will be **null**if one of the following scenarios happen:
 ls.info('token');
 ```
 
-#### get
+### getItem
 
 
 ```ts
@@ -126,15 +131,15 @@ get the value with a default return value if it's not existed
 > the returned value is Ref<any>, you just use it as other Ref values in Vue 3.
 
 
-#### remove
+### removeItem
 
 ```ts
-ls.remove('token');
+ls.removeItem('token');
 ```
 
 remove will delete the key in storage and emit with **null** value
 
-#### clear
+### clear
 
 ```ts
 ls.clear();
@@ -148,8 +153,8 @@ delete all the keys with your **prefix**. and all the value will be**null**
 - pls **NOT** to set value as following, the correct way is to use setItem
 ```ts
 const ls = useLSWatcher()
-let msg = ls.getItem("msg")
 
+let msg = ls.getItem("msg")
 msg.value = "new msg" // !!!you will receive a warning
 ```
 

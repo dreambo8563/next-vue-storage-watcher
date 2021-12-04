@@ -6,6 +6,7 @@
     <div>
       ss: {{ssmsg}}
     </div>
+    info:{{info}}
   </div>
 </template>
 <script lang="ts">
@@ -23,6 +24,8 @@ export default defineComponent({
       ss.setItem("mm","aa",100)
 let msg = ls.getItem("mm")
 let ssmsg = ss.getItem("mm")
+const info = ls.info("mm")
+
 
 setTimeout(() => {
     ls.setItem("mm",[1,2,3],100)
@@ -36,6 +39,7 @@ setTimeout(() => {
 // }, 10000);
 
     return {
+      info,
     msg,
     ssmsg
     };
