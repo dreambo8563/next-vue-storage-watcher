@@ -1,6 +1,6 @@
 {
   "name": "next-vue-storage-watcher",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": false,
   "files": [
     "dist/*",
@@ -34,14 +34,15 @@
     "vite": "^2.6.4",
     "vue-tsc": "^0.3.0"
   },
-  "description": "localStorage and sessionStorage management tool for vue3",
+  "description": "localStorage and sessionStorage management tool for vue 3",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dreambo8563/next-vue-storage-watcher.git"
   },
   "keywords": [
-    "vue",
+    "vue 3",
     "localStorage",
+    "sessionStorage",
     "reactive"
   ],
   "typings": "src/types/index.d.ts",

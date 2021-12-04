@@ -27,7 +27,7 @@ export const stringifyValue =(payload:any,expire=null)=> {
 };
 
 export function storageRefFactory(s:Storage){
-    return function useLocalStorageRef(value:any) {
+    return function useStorageRef(value:any) {
         return customRef((track, trigger) => {
           return {
             get() {

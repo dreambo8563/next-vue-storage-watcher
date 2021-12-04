@@ -1,20 +1,29 @@
 import { App, reactive, readonly, Ref, toRef } from "vue";
 import { Watcher, WatcherOptions } from "../types";
+import { localSymbol } from "./local";
+import { sessionSymbol } from "./session";
 import { parserStorageObj, storageRefFactory } from "./utils";
 export {useLSWatcher} from "./local"
 export {useSSWatcher} from "./session"
 
-const lsSymbol = "_LS_Watcher_"
+const defaultPrefix = "_Storage_Watcher_"
 const UpdateSymbol ="$$_UKEY_$$"
+
+
+const storageSymbol = {
+    "local":localSymbol,
+    "session":sessionSymbol
+}
 const storageInstantce={
     "local":localStorage,
     "session":sessionStorage
 }
 declare type  watcherType = "local"|"session"
+const defaultType:watcherType ="local"
 
 export function createWatcher(options?: WatcherOptions): Watcher {
     const prefix = options?.prefix
-    const storage = options?.storage ?? "local"
+    const storage = options?.storage || defaultType
 
 return watcherFactory(prefix,storage)
    
@@ -27,30 +36,16 @@ function watcherFactory(prefix:string|undefined, storage:watcherType) : Watcher{
 
 export function createStorageWatcher(p:string|undefined,s:watcherType) {
     const storage = storageInstantce[s]
-    const storageRef = storageRefFactory(storage)
-    const keys = Object.keys(storage)
-    let obj ={} as Record<string,Ref<any>>
-    const prefix = p||lsSymbol //combined prefix
-    for (const k of keys) {
-        if (k.startsWith(prefix)){
-            const originKeyName = k.replace(prefix, "")
-            // keys managed by watcher
-            obj[originKeyName]=storageRef({
-                content:{
-                    value:storageRef(parserStorageObj(k,storage))
-                },
-            })
-        }
-    }
-    const reactiveStorage = reactive(obj) 
+
+    const prefix = p||defaultPrefix //combined prefix
+    const storageRef = storageRefFactory(storage);
+    const reactiveStorage = initReactiveObject(prefix,storage,storageRef);
 
     const watcher:Watcher = {
-        
-        
         install(app:App){
             const w = this
             app.config.globalProperties.$watcher = w
-            app.provide("$ls", w)
+            app.provide(storageSymbol[s], w)
         },
         
         setItem(key:string,value:any,expire: any=null): void{
@@ -110,4 +105,22 @@ export function createStorageWatcher(p:string|undefined,s:watcherType) {
     }
 
     return watcher
+}
+
+function initReactiveObject(prefix:string,storage:Storage,storageRef:(value:any)=>Ref<unknown>) {
+    const keys = Object.keys(storage)
+    let obj ={} as Record<string,Ref<any>>
+
+    for (const k of keys) {
+        if (k.startsWith(prefix)){
+            const originKeyName = k.replace(prefix, "")
+            // keys managed by watcher
+            obj[originKeyName]=storageRef({
+                content:{
+                    value:storageRef(parserStorageObj(k,storage))
+                },
+            })
+        }
+    }
+    return reactive(obj) 
 }

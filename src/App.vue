@@ -3,29 +3,41 @@
 <template>
   <div>
     {{msg}}
+    <div>
+      ss: {{ssmsg}}
+    </div>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useLSWatcher } from "./lib/local";
+import { useLSWatcher } from "./lib/main";
+import { useSSWatcher } from "./lib/main";
+
 export default defineComponent({
   name: "Home",
- 
   setup() {
  
-
   const ls = useLSWatcher()
-    ls.setItem("pp","sdljfsldjf",100)
-let msg = ls.getItem("pp")
+  const ss = useSSWatcher()
+    ls.setItem("mm","aa",100)
+      ss.setItem("mm","aa",100)
+let msg = ls.getItem("mm")
+let ssmsg = ss.getItem("mm")
 
-
-console.log('msg :>> ', msg);
 setTimeout(() => {
-    // ls.removeItem("88")
-}, 1000);
+    ls.setItem("mm",[1,2,3],100)
+        ss.setItem("mm",[1,2,3],100)
+}, 5000);
+
+// console.log('msg :>> ', msg);
+// setTimeout(() => {
+//     ls.removeItem("mm")
+//         ss.removeItem("mm")
+// }, 10000);
 
     return {
-    msg
+    msg,
+    ssmsg
     };
   },
 });
